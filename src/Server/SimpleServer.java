@@ -2,11 +2,12 @@ package Server;
 
 import java.net.*;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.io.*;
 
 public class SimpleServer {
 	ServerSocket ss;
-	ServerSocket ss2;
+	DatagramSocket ds;
 	SimpleServer server;
 	Thread thread;
 	Thread threadBrocast;
@@ -22,12 +23,14 @@ public class SimpleServer {
 
 	private void startServer(int port) {
 		try {
-			ss = new ServerSocket(port);
-			// 執行緒
+			// 執行緒-客戶端操作
+			ss = new ServerSocket(port); // port由GUI_Main.class指定
 			thread = new Thread(new ClientThread(ss));
 			thread.start();
 
-			threadBrocast = new Thread(new brocastThread(ss2));
+			// 執行緒-廣播 
+			ds = new DatagramSocket(8899); // 廣播部分固定port
+			threadBrocast = new Thread(new brocastThread(ds,ss));
 			threadBrocast.start();
 		}
 		catch (IOException ioe) {
@@ -39,42 +42,53 @@ public class SimpleServer {
 	}
 }
 
-//
-//執行緒
-class brocastThread implements Runnable {
-	private ServerSocket ss2;
-	private Socket cs2;
 
-	DatagramSocket ds;
-	DatagramPacket receive ;
+//執行緒-廣播 
+class brocastThread implements Runnable {
+	private ServerSocket ss;
+	private Socket cs;
+	private DatagramSocket ds;
+	private DatagramPacket receive ;
+	private DataOutputStream out;
 	private byte[] recvBytes;
 
 	// 建構函式
-	public brocastThread(ServerSocket ss2) throws Exception {
-		this.ss2 = ss2;
+	public brocastThread(DatagramSocket ds, ServerSocket ss) throws Exception {
+		this.ds = ds;
+		this.ss = ss;
 	}
 
 	public void run() {
 		try {
 			while(true) {
+				// 接收廣播
 				receive = new DatagramPacket(new byte[1024], 1024);  
-				ds = new DatagramSocket(8888);
 				ds.receive(receive);
 				recvBytes = Arrays.copyOfRange(
 						receive.getData(),
 						0,  
 						receive.getLength());
-				System.out.println("Server receive msg:" + new String(recvBytes)); 
+				String string=new String(recvBytes);
+				// 顯示console
+				System.out.println("Server receive a brocast msg:" +string ); 
+
+				// 輸出Server IP
+				if(!string.isEmpty()) {
+					cs = new Socket(string, 3578);
+					// 建立用戶端的輸出串流
+					out = new DataOutputStream(cs.getOutputStream());
+					out.writeUTF("192.168.1.35");
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();//列印異常資訊
 		} finally {//用finally語句塊確保動作執行
 			try{
+				if(cs != null){
+					cs.close();
+				}
 				if(ds != null){
 					ds.close();//關閉輸入串流
-				}
-				if(cs2 != null){
-					cs2.close();//關閉Socket連接
 				}
 			}
 			catch(Exception e){
@@ -82,23 +96,19 @@ class brocastThread implements Runnable {
 			}
 		}
 	}
-
 }
 
 
-
-// 執行緒
+//執行緒-客戶端操作
 class ClientThread implements Runnable {
 	private ServerSocket ss;
 	private Socket cs;
-
-	DataInputStream  in;
-	DataOutputStream out;
+	private DataInputStream  in;
+	private DataOutputStream out;
 
 	// 建構函式
 	public ClientThread(ServerSocket ss) throws Exception {
 		this.ss = ss;
-
 	}
 
 	public void run() {
@@ -111,9 +121,10 @@ class ClientThread implements Runnable {
 				// 建立用戶端的輸出串流
 				out = new DataOutputStream(cs.getOutputStream());
 
+				String now=Calendar.HOUR+":"+Calendar.MINUTE+":"+Calendar.SECOND+"";
 				// 至客戶端接收的資料				
 				String FromClient = in.readUTF();
-				System.out.println("客戶端送來的訊息： "+FromClient);
+				System.out.println("客戶端送來的訊息：\""+FromClient+"\"@"+now);
 				ControlWMP wmp = new ControlWMP();
 				ControlPPT ppt = new ControlPPT();
 				ControlComputer cc = new ControlComputer();
@@ -121,7 +132,7 @@ class ClientThread implements Runnable {
 
 				//電腦控制部分
 				if(FromClient.equalsIgnoreCase("TESTTEST123123")) {
-					System.out.print("!!!!!!!!!!!!!!!!!!!");
+					//System.out.println("!!!!!!!!!!!!!!!!!!!");
 					out.writeUTF("Conected");
 				}
 				else if(FromClient.equalsIgnoreCase("MRCode_CC_00")) cc.sleep(); //休眠
