@@ -186,7 +186,7 @@ public class GUI_Main extends JFrame {
                   InetAddress i = (InetAddress) ee.nextElement();
                   if(i.getHostAddress().indexOf(":")==-1 && !i.getHostAddress().equals("127.0.0.1")){
 //                    System.out.println(i.getHostAddress())
-                	  if(n.getDisplayName().indexOf("VirtualBox")==-1 && n.getDisplayName().indexOf("microsoft")==-1 && n.getDisplayName().indexOf("vmware")==-1){
+                	  if(n.getDisplayName().toLowerCase().indexOf("virtualbox")==-1 && n.getDisplayName().toLowerCase().indexOf("microsoft")==-1 && n.getDisplayName().toLowerCase().indexOf("hyper-v")==-1&& n.getDisplayName().toLowerCase().indexOf("vmware")==-1){
                 		IP+=i.getHostAddress()+"¡B";
                 		allIP.add(i.getHostAddress());
                 		System.out.println(n.getDisplayName());  
