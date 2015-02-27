@@ -77,7 +77,7 @@ class brocastThread implements Runnable {
 					cs = new Socket(string, 3578);
 					// 建立用戶端的輸出串流
 					out = new DataOutputStream(cs.getOutputStream());
-					out.writeUTF("192.168.1.35");
+					out.writeUTF("192.168.1.41");
 				}
 			}
 		} catch (Exception e) {

@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 public class GUI_Main extends JFrame {
     private JButton Btn_Music_Source;
@@ -21,6 +23,7 @@ public class GUI_Main extends JFrame {
     private JLabel jLabel5;
 	private static String Music_File, Point_File, Video_File; //用於存放資料夾的路徑
 	private static final int PORT = 3579; //伺服器使用的port
+	
 	
 	public static void main(String args[]) {
     	GUI_Main g = new GUI_Main();
@@ -168,7 +171,27 @@ public class GUI_Main extends JFrame {
         
         try{
         	InetAddress myComputer = InetAddress.getLocalHost() ;
-            jLabel5.setText("本機IP位址："+myComputer.getHostAddress());
+//            jLabel5.setText("本機IP位址："+myComputer.getHostAddress());
+        	String IP ="";
+//          jLabel5.setText("本機IP位址："+myComputer.getHostAddress());
+          Enumeration e = NetworkInterface.getNetworkInterfaces();
+          while(e.hasMoreElements())
+          {
+              NetworkInterface n = (NetworkInterface) e.nextElement();
+              Enumeration ee = n.getInetAddresses();
+              while (ee.hasMoreElements())
+              {
+                  InetAddress i = (InetAddress) ee.nextElement();
+                  if(i.getHostAddress().indexOf(":")==-1 && !i.getHostAddress().equals("127.0.0.1")){
+//                    System.out.println(i.getHostAddress())
+                	  if(n.getDisplayName().indexOf("VirtualBox")==-1 && n.getDisplayName().indexOf("microsoft")==-1 && n.getDisplayName().indexOf("vmware")==-1){
+                		IP+=i.getHostAddress()+"、";
+                		System.out.println(n.getDisplayName());  
+                	  }
+                  }
+              }
+          }
+          jLabel5.setText("本機IP位址："+IP.substring(0, IP.length()-1));
         }catch(Exception e){}
 
 
