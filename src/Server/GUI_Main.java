@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 public class GUI_Main extends JFrame {
@@ -23,6 +24,7 @@ public class GUI_Main extends JFrame {
     private JLabel jLabel5;
 	private static String Music_File, Point_File, Video_File; //用於存放資料夾的路徑
 	private static final int PORT = 3579; //伺服器使用的port
+	public static ArrayList<String> allIP = new ArrayList<String>();
 	
 	
 	public static void main(String args[]) {
@@ -186,6 +188,7 @@ public class GUI_Main extends JFrame {
 //                    System.out.println(i.getHostAddress())
                 	  if(n.getDisplayName().indexOf("VirtualBox")==-1 && n.getDisplayName().indexOf("microsoft")==-1 && n.getDisplayName().indexOf("vmware")==-1){
                 		IP+=i.getHostAddress()+"、";
+                		allIP.add(i.getHostAddress());
                 		System.out.println(n.getDisplayName());  
                 	  }
                   }

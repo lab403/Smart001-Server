@@ -71,13 +71,15 @@ class brocastThread implements Runnable {
 				String string=new String(recvBytes);
 				// 顯示console
 				System.out.println("Server receive a brocast msg:" +string ); 
-
+				
 				// 輸出Server IP
 				if(!string.isEmpty()) {
 					cs = new Socket(string, 3578);
 					// 建立用戶端的輸出串流
 					out = new DataOutputStream(cs.getOutputStream());
-					out.writeUTF("192.168.1.41");
+					for (int i = 0; i < GUI_Main.allIP.size(); i++) {
+						out.writeUTF(GUI_Main.allIP.get(i));
+					}
 				}
 			}
 		} catch (Exception e) {
